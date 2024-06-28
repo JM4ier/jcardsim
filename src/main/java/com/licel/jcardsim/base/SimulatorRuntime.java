@@ -174,6 +174,8 @@ public class SimulatorRuntime {
      * @param appletClass Applet class
      */
     public void loadApplet(AID aid, Class<? extends Applet> appletClass) {
+        LOG.log("Loading Applet: AID=" + String.valueOf(aid) + ", Class=" + appletClass.getName());
+
         if (generatedLoadFileAIDs.keySet().contains(aid)) {
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
@@ -203,6 +205,7 @@ public class SimulatorRuntime {
      * @param aid Applet AID to delete
      */
     protected void deleteApplet(AID aid) {
+        LOG.log("Delete Applet: AID=" + String.valueOf(aid));
         activateSimulatorRuntimeInstance();
         ApplicationInstance applicationInstance = lookupApplet(aid);
         if (applicationInstance == null) {
@@ -351,20 +354,33 @@ public class SimulatorRuntime {
         if (apduCase == ApduCase.Case1 || apduCase == ApduCase.Case2) {
             // on a regular Smartcard we would select the CardManager applet
             // in this case we just select the first applet
-            return applets.isEmpty() ? null : applets.firstKey();
+            if (applets.isEmpty()) {
+                LOG.warning("no applets, returning null.");
+                return null;
+            } else {
+                return applets.firstKey();
+            }
         }
+
+        LOG.info("Searching AIDs exactly.");
 
         for (AID aid : applets.keySet()) {
             if (aid.equals(selectApdu, ISO7816.OFFSET_CDATA, selectApdu[ISO7816.OFFSET_LC])) {
+                LOG.info("Found AID: " + aid);
                 return aid;
             }
         }
 
+        LOG.info("Did not find exact AID, searching for AIDs partially.");
+
         for (AID aid : applets.keySet()) {
             if (aid.partialEquals(selectApdu, ISO7816.OFFSET_CDATA, selectApdu[ISO7816.OFFSET_LC])) {
+                LOG.info("Found partial AID: " + aid);
                 return aid;
             }
         }
+
+        LOG.warning("Found no matching AID.");
 
         return null;
     }

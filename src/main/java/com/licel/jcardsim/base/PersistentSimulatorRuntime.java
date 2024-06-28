@@ -37,6 +37,7 @@ import javacard.framework.SystemException;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 public class PersistentSimulatorRuntime extends SimulatorRuntime {
+    private static final Logger LOG = Logger.getLogger(PersistentSimulatorRuntime.class.getName());
     public static final String PERSISTENT_BASE_DIR = "persistentSimulatorRuntime.dir";
     protected final Kryo kryo;
     protected String appletsDir;
