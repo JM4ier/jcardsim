@@ -46,6 +46,8 @@ public class VSmartCard {
     static final String RELOADER_PORT_DEFAULT = "8099";
     static final String RELOADER_DELAY_PROPERTY = "com.licel.jcardsim.vsmartcard.reloader.delay";
     static final String RELOADER_DELAY_DEFAULT = "1000"; //milisec
+
+    private static final Logger LOG = Logger.getLogger(VSmartCard.class.getName());
     
     Simulator sim;
     ReloadThread reloader;
@@ -102,14 +104,13 @@ public class VSmartCard {
     }
 
     private void startThread(VSmartCardTCPProtocol driverProtocol) throws IOException {
-        System.out.println("Trying to load an instance of com.licel.globalplatform.GpSimulatorRuntime");
+        LOG.info("Trying to load an instance of com.licel.globalplatform.GpSimulatorRuntime");
         SimulatorRuntime simRuntime;
         try {
             simRuntime = (SimulatorRuntime)Class.forName("com.licel.globalplatform.GpSimulatorRuntime").newInstance();
             System.out.println("Succesfully loaded the instance!");
         } catch (Throwable ex) {
-            ex.printStackTrace(System.err);
-            System.out.println("Failed to load the instance! Will use the default SimulatorRuntime");
+            LOG.log(Level.WARNING, "Failed to load the instance! Will use the default SimulatorRuntime", ex);
             simRuntime = new SimulatorRuntime();
         }
         sim = new Simulator(simRuntime);
@@ -206,15 +207,20 @@ public class VSmartCard {
                     int cmd = driverProtocol.readCommand();
                     switch (cmd) {
                         case VSmartCardTCPProtocol.POWER_ON:
+                            LOG.info("POWER_ON");
                         case VSmartCardTCPProtocol.RESET:
+                            LOG.info("RESET");
                             sim.reset();
                             break;
                         case VSmartCardTCPProtocol.GET_ATR:
+                            LOG.info("GET_ATR");
                             driverProtocol.writeData(sim.getATR());
                             break;
                         case VSmartCardTCPProtocol.APDU:
                             final byte[] apdu = driverProtocol.readData();
+                            LOG.log(Level.INFO, "APDU-C: {0}", bytesToHex(apdu));
                             final byte[] reply = CardManager.dispatchApdu(sim, apdu);
+                            LOG.log(Level.INFO, "APDU-R: {0}", bytesToHex(reply));
                             driverProtocol.writeData(reply);
                             break;
                     }
@@ -226,6 +232,21 @@ public class VSmartCard {
                 }
             }
         }
+    }
+
+    static String bytesToHex(byte[] bytes) {
+        if (bytes == null) {
+            return "(null)";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xFF & (int) b);
+            if (hex.length() == 1) {
+                sb.append('0');
+            }
+            sb.append(hex);
+        }
+        return sb.toString();
     }
 
 }
