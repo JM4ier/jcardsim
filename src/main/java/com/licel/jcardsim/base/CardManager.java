@@ -15,7 +15,11 @@
  */
 package com.licel.jcardsim.base;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.licel.jcardsim.io.JavaCardInterface;
+
 import javacard.framework.AID;
 import javacard.framework.ISO7816;
 import javacard.framework.SystemException;
@@ -25,6 +29,7 @@ import javacard.framework.Util;
  */
 public class CardManager implements CardManagerInterface {
     private static CardManagerInterface impl;
+    private static final Logger LOG = Logger.getLogger(CardManager.class.getName());
     static {
         System.out.println("Trying to load an instance of com.licel.globalplatform.CardManager");
         try {
@@ -61,6 +66,7 @@ public class CardManager implements CardManagerInterface {
                 Util.setShort(response, (short) (response.length - 2), ISO7816.SW_NO_ERROR);
                 return response;
             } catch (SystemException e) {
+                LOG.log(Level.WARNING, "Error while handling APDU-C: ", e);
                 Util.setShort(theSW, (short) 0, e.getReason());
                 return theSW;
             }
