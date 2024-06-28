@@ -18,6 +18,7 @@ package com.licel.jcardsim.base;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.esotericsoftware.kryo.util.Util;
 import com.licel.jcardsim.io.JavaCardInterface;
 
 import javacard.framework.AID;
@@ -66,13 +67,20 @@ public class CardManager implements CardManagerInterface {
                 Util.setShort(response, (short) (response.length - 2), ISO7816.SW_NO_ERROR);
                 return response;
             } catch (SystemException e) {
-                LOG.log(Level.WARNING, "Error while handling APDU-C: ", e);
+                LOG.log(Level.WARNING, "Error while handling applet creation: ", e);
                 Util.setShort(theSW, (short) 0, e.getReason());
                 return theSW;
             }
             // forward -> applet. TODO: more clean implementation    
         } else {
-            return sim.transmitCommand(capdu);
+            try {
+                return sim.transmitCommand(capdu);
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, "Error while handling APDU-C: ", e);
+                byte[] retval = new byte[2];
+                Util.setShort(retval, (short) 0, (short) 0x6666);
+                return retval;
+            }
         }
     }
 }
