@@ -21,6 +21,7 @@ import com.esotericsoftware.kryo.io.Output;
 import static com.licel.jcardsim.base.Simulator.ATR_SYSTEM_PROPERTY;
 import static com.licel.jcardsim.base.Simulator.DEFAULT_ATR;
 import com.licel.jcardsim.utils.AIDUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,9 +32,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.logging.Logger;
+
 import javacard.framework.AID;
 import javacard.framework.Applet;
 import javacard.framework.SystemException;
+
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 public class PersistentSimulatorRuntime extends SimulatorRuntime {

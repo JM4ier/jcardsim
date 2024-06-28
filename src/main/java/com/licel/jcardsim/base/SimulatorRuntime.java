@@ -174,7 +174,7 @@ public class SimulatorRuntime {
      * @param appletClass Applet class
      */
     public void loadApplet(AID aid, Class<? extends Applet> appletClass) {
-        LOG.log("Loading Applet: AID=" + String.valueOf(aid) + ", Class=" + appletClass.getName());
+        LOG.info("Loading Applet: AID=" + String.valueOf(aid) + ", Class=" + appletClass.getName());
 
         if (generatedLoadFileAIDs.keySet().contains(aid)) {
             throw new SystemException(SystemException.ILLEGAL_AID);
@@ -205,7 +205,7 @@ public class SimulatorRuntime {
      * @param aid Applet AID to delete
      */
     protected void deleteApplet(AID aid) {
-        LOG.log("Delete Applet: AID=" + String.valueOf(aid));
+        LOG.info("Delete Applet: AID=" + String.valueOf(aid));
         activateSimulatorRuntimeInstance();
         ApplicationInstance applicationInstance = lookupApplet(aid);
         if (applicationInstance == null) {
