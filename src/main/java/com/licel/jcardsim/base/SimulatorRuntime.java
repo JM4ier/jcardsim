@@ -18,6 +18,7 @@ package com.licel.jcardsim.base;
 import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.BiConsumer;
 import com.licel.jcardsim.utils.ByteUtil;
+
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
@@ -28,6 +29,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base implementation of Java Card Runtime.
@@ -70,6 +73,8 @@ public class SimulatorRuntime {
     protected byte transactionDepth = 0;
     /** previousActiveObject */
     protected Object previousActiveObject;
+
+    private static final Logger LOG = Logger.getLogger(SimulatorRuntime.class.getName());
 
     public SimulatorRuntime() {
         this(new TransientMemory());
@@ -250,7 +255,9 @@ public class SimulatorRuntime {
         selecting = false;
         // check if there is an applet to be selected
         if (!apduCase.isExtended() && isAppletSelectionApdu(command)) {
+            LOG.info("APDU SELECT");
             AID newAid = findAppletForSelectApdu(command, apduCase);
+            LOG.info("APDU SELECT, AID="+String.valueOf(newAid));
             if (newAid != null) {
                 deselect(lookupApplet(getAID()));
                 currentAID = newAid;
@@ -258,12 +265,14 @@ public class SimulatorRuntime {
                 selecting = true;
             }
             else if (applet == null) {
+                LOG.warn("APDU SELECT: Applet not found.");
                 Util.setShort(theSW, (short) 0, ISO7816.SW_APPLET_SELECT_FAILED);
                 return theSW;
             }
         }
 
         if (applet == null) {
+            LOG.warn("APDU: not a SELECT, and applet is unset.");
             Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
             return theSW;
         }
@@ -293,6 +302,7 @@ public class SimulatorRuntime {
                     success = false;
                 }
                 if (!success) {
+                    LOG.warn("Failed to SELECT applet.");
                     throw new ISOException(ISO7816.SW_APPLET_SELECT_FAILED);
                 }
             }
@@ -303,6 +313,7 @@ public class SimulatorRuntime {
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
+            LOG.log(Level.WARNING, "Exception while applet processing of apdu: ", e);
             Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
             if (e instanceof ISOException) {
                 Util.setShort(theSW, (short) 0, ((ISOException) e).getReason());
