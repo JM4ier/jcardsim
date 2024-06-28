@@ -18,7 +18,6 @@ package com.licel.jcardsim.base;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.esotericsoftware.kryo.util.Util;
 import com.licel.jcardsim.io.JavaCardInterface;
 
 import javacard.framework.AID;
