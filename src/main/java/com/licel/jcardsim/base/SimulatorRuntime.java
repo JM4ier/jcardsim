@@ -265,14 +265,14 @@ public class SimulatorRuntime {
                 selecting = true;
             }
             else if (applet == null) {
-                LOG.warn("APDU SELECT: Applet not found.");
+                LOG.warning("APDU SELECT: Applet not found.");
                 Util.setShort(theSW, (short) 0, ISO7816.SW_APPLET_SELECT_FAILED);
                 return theSW;
             }
         }
 
         if (applet == null) {
-            LOG.warn("APDU: not a SELECT, and applet is unset.");
+            LOG.warning("APDU: not a SELECT, and applet is unset.");
             Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
             return theSW;
         }
@@ -302,7 +302,7 @@ public class SimulatorRuntime {
                     success = false;
                 }
                 if (!success) {
-                    LOG.warn("Failed to SELECT applet.");
+                    LOG.warning("Failed to SELECT applet.");
                     throw new ISOException(ISO7816.SW_APPLET_SELECT_FAILED);
                 }
             }
