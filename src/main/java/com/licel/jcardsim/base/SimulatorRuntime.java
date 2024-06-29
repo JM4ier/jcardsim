@@ -365,6 +365,7 @@ public class SimulatorRuntime {
         LOG.info("Searching AIDs exactly.");
 
         for (AID aid : applets.keySet()) {
+            LOG.log(Level.INFO, "Checking AID {0}", aid);
             if (aid.equals(selectApdu, ISO7816.OFFSET_CDATA, selectApdu[ISO7816.OFFSET_LC])) {
                 LOG.info("Found AID: " + aid);
                 return aid;
