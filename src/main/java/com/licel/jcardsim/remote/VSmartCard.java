@@ -59,6 +59,8 @@ public class VSmartCard {
     }
 
     static public void main(String args[]) throws Exception {
+        LOG.info("Starting VSmartCard");
+
         if (args.length !=1) {
             System.out.println("Usage: java com.licel.jcardsim.remote.VSmartCard <jcardsim.cfg>");
             System.exit(-1);

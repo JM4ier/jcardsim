@@ -16,6 +16,7 @@
 package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.io.JavaCardInterface;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,16 +25,22 @@ import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.ByteUtil;
+
 import javacard.framework.*;
+
 import org.bouncycastle.util.encoders.Hex;
 
 /**
  * Simulates a JavaCard.
  */
 public class Simulator implements JavaCardInterface {
+
+    private static final Logger LOG = Logger.getLogger(Simulator.class.getName());
 
     // default ATR - NXP JCOP 31/36K
     public static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
@@ -91,6 +98,9 @@ public class Simulator implements JavaCardInterface {
 
         changeProtocol(protocol);
 
+        LOG.info("Loading pre-installed applets...");
+        int loadedAppletCount = 0;
+
         // init pre-installed applets
         for (int i = 0; i < 100 && !properties.isEmpty(); i++) {
             String selectedPrefix = PROPERTY_PREFIX;
@@ -104,17 +114,24 @@ public class Simulator implements JavaCardInterface {
                 }
             }
             if (appletAID != null) {
+                LOG.log(Level.INFO, "Found AID: {0}", appletAID);
                 String appletClassName = properties.getProperty(selectedPrefix + APPLET_CLASS_SP_TEMPLATE.format(new Object[]{i}));
                 if (appletClassName != null) {
                     byte[] aidBytes = Hex.decode(appletAID);
                     if (aidBytes == null || aidBytes.length < 5 || aidBytes.length > 16) {
+                        LOG.log(Level.WARNING, "Incorrect AID: {0}", appletAID);
                         // skip incorrect applet
                         continue;
                     }
                     loadApplet(new AID(aidBytes, (short) 0, (byte) aidBytes.length), appletClassName);
+                    loadedAppletCount++;
+                } else {
+                    LOG.log(Level.WARNING, "Missing applet classname for AID {0}", appletAID);
                 }
             }
         }
+
+        LOG.log(Level.INFO, "Loaded {0} Applets.", loadedAppletCount);
     }
 
     public AID loadApplet(AID aid, String appletClassName, byte[] appletJarContents) throws SystemException {
