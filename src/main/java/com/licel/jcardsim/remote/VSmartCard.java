@@ -215,7 +215,6 @@ public class VSmartCard {
                             sim.reset();
                             break;
                         case VSmartCardTCPProtocol.GET_ATR:
-                            LOG.info("GET_ATR");
                             driverProtocol.writeData(sim.getATR());
                             break;
                         case VSmartCardTCPProtocol.APDU:
